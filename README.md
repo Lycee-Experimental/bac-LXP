@@ -8,6 +8,8 @@ Pour installer l'application sur un OS Linux dérivé de Debian (Debian, Ubuntu,
 ```bash
 wget -q -O - "https://raw.githubusercontent.com/Lycee-Experimental/bac-LXP/main/install.sh" | bash
 ```
+bac-LXP devrait alors être parmis les applications que se trouvent dans le menu de démarrage.
+
 ## Fonctionnalités
 
 ### De la base élève à l'inscription sur Cyclades
@@ -27,6 +29,8 @@ wget -q -O - "https://raw.githubusercontent.com/Lycee-Experimental/bac-LXP/main/
 - Entrer le mot de passe Parcroursup de l'établissement
 
 - Cliquer sur "Obtenir les élèves depuis Parcoursup"
+
+- Renseigner les numéros d'anonymats des candidats à exporter (voir avec la DEC) 
 
 - Sélectionner les élèves pour lesquels générer le livret scolaire
 
