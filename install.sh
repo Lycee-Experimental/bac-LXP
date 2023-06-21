@@ -19,6 +19,6 @@ Encoding=UTF-8
 Version=1.0
 Type=Application
 Terminal=false
-Exec=/opt/bac-LXP/script.py
+Exec=python3 /opt/bac-LXP/script.py
 Name=bac-LXP
 Icon=/opt/bac-LXP/icon.png""" | sudo tee /usr/share/applications/bac-LXP.desktop
