@@ -104,6 +104,7 @@ class MainWindow(QMainWindow):
 
         self.table_view = QTableView()
         self.table_view.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.table_view.setSelectionMode(QAbstractItemView.MultiSelection)
         self.table_view.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.table_view.verticalHeader().setVisible(False)
         self.table_view.setEditTriggers(QAbstractItemView.NoEditTriggers)
@@ -145,6 +146,8 @@ class MainWindow(QMainWindow):
         # Create a QStandardItemModel with 3 columns
         self.table_view2 = QTableView()
         self.table_view2.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.table_view2.setSelectionMode(QAbstractItemView.MultiSelection)
+
         self.table_view2.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.table_view2.verticalHeader().setVisible(False)
         #self.table_view2.setEditTriggers(QAbstractItemView.NoEditTriggers)
@@ -178,7 +181,9 @@ class MainWindow(QMainWindow):
         df.replace({'pays_naissance': pays, 'nationalite': pays}, inplace=True)
         # Codes postaux sont des entiers, les champs NaN par 0
         df.loc[df['code_postal'] != '', 'code_postal'] = df.loc[df['code_postal'] != '', 'code_postal'].astype(int)
-        
+        df['telephone'] = df[['Tél. Personnel', 'Tél. Portable']].apply(lambda x: x[x != ''].values[0] if not x[x != ''].empty else '', axis=1)
+        df['adresse_1'] = df['adresse_1'] + ' ' + df['adresse_2'] + ' ' + df['adresse_3'] + ' ' + df['adresse_4']
+        df['adresse_1'] = df['adresse_1'].str.strip().replace(' +', ' ')
         # On met les communes en minuscule et enlève les doubles espaces (apris arrondissement)
         df['commune_naissance'] = df['commune_naissance'].str.lower().replace(r'\s+', ' ', regex=True)
         # Si étranger
@@ -199,7 +204,7 @@ class MainWindow(QMainWindow):
         df['categorie'] = '520'
         df['pays'] = '100'
         # On crée les champs vides nécessaires à l'import
-        champs_vides = ['telephone', 'telephone_mobile', 'categ_socio_pro', 'division_classe', 'enseignement', 'zone_geo_souhaitee', 'dnl', 'langue_section_inter', 'langue_section_euro']
+        champs_vides = ['categ_socio_pro', 'division_classe', 'enseignement', 'zone_geo_souhaitee', 'dnl', 'langue_section_inter', 'langue_section_euro']
         for vides in champs_vides:
             df[vides] = ''
         # On filtre les élèves qui ne sont pas sortis du LXP
@@ -229,11 +234,13 @@ class MainWindow(QMainWindow):
         self.filtered_data = self.filtered_data[champs_ordonnés]
         self.update_table()
 
+
+
     def update_table(self):
         self.table_model = CsvTableModel(self.filtered_data)
         self.table_view.setModel(self.table_model)
         self.table_view.setItemDelegate(CustomDelegate())
-        hidden_columns = [0,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,32,33]
+        hidden_columns = [0,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22]
         for i in hidden_columns:
             self.table_view.setColumnHidden(i, True)
 
@@ -251,8 +258,8 @@ class MainWindow(QMainWindow):
         selected_rows = []
         # On enregistre le nouveau fichier
         date = datetime.now().strftime("%d%m%Y%H%M")
-        year = datetime.now().strftime("%Y")
-        file_name = "_2.1_"+year+"_"+date+".csv"
+        year = str(int(datetime.now().strftime("%Y"))+1)
+        file_name = "_2.3_"+year+"_"+date+".csv"
         if self.radio_button_2.isChecked():
             file_name = "terminales"+file_name             
         elif self.radio_button_1.isChecked():
@@ -264,7 +271,7 @@ class MainWindow(QMainWindow):
             dataframe = pd.DataFrame(selected_rows, columns=self.table_model._data.columns)
             directory = QFileDialog.getExistingDirectory(self, "Choix du dossier d'export")
             if directory:
-                dataframe.to_csv(directory +"/"+file_name, index=False)
+                dataframe.to_csv(directory +"/"+file_name, sep=";", index=False)
             else:
                 QMessageBox.warning(self, "Warning", "Pas de dossier sélectionné.")
         msg = QMessageBox()
@@ -412,7 +419,7 @@ Ce présent livret présente donc une synthèse de l'autoévaluation annuelle, p
             data += "| {} | {} |\n".format(matiere, evaluation)
         return data
 
-champs_ordonnés = ['civilite','nom_famille','prenoms','ine','pays_naissance','date_naissance', 'depCOM_naissance','commune_naissance','nationalite','pays','adresse_1', 'adresse_2','adresse_3','adresse_4','code_postal','localite','telephone', 'telephone_mobile', 'adresse_mail', 'categ_socio_pro', 'etablissement','division_classe','serie','enseignement', 'categorie','langue_section_inter','langue_section_euro','specialite1','specialite2','specialite3', 'LVA','LVB','zone_geo_souhaitee', 'dnl']
+champs_ordonnés = ['civilite','nom_famille','prenoms','ine','pays_naissance','date_naissance', 'depCOM_naissance','commune_naissance','nationalite','pays','adresse_1','code_postal','localite','telephone', 'adresse_mail', 'categ_socio_pro', 'etablissement','division_classe','serie','enseignement', 'categorie','langue_section_inter','langue_section_euro','specialite1','specialite2','specialite3', 'LVA','LVB']
 
 champs = {'Email': 'adresse_mail', 'Sexe': 'civilite', 'Nom de famille': 'nom_famille', 'Prénom': 'prenoms', 'Id National': 'ine', 'Pays Naiss.': 'pays_naissance', 'Date Naissance': 'date_naissance', 'Commune Naiss.': 'commune_naissance', 'Pays Nat.': 'nationalite', 'Ligne Adresse 1 Repr. Lég. ': 'adresse_1', 'Ligne Adresse 2 Repr. Lég. ': 'adresse_2', 'Ligne Adresse 3 Repr. Lég. ': 'adresse_3', 'Ligne Adresse 4 Repr. Lég. ': 'adresse_4', 'Code Postal Repr. Lég. ': 'code_postal', 'Lib. Postal Repr. Lég. ': 'localite', 'Clé Gestion Mat. Enseignée 3': 'specialite1', 'Clé Gestion Mat. Enseignée 4': 'specialite2', 'Clé Gestion Mat. Enseignée 5': 'specialite3', 'Lib. Mat. Enseignée 1': 'LVA', 'Lib. Mat. Enseignée 2': 'LVB', 'Email': 'adresse_mail'
 }
