@@ -1,8 +1,9 @@
 #!/bin/bash
-sudo apt remove wkhtmltopdf
+sudo apt remove wkhtmltopdf -y
 wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-2/wkhtmltox_0.12.6.1-2.jammy_amd64.deb
 sudo dpkg -i wkhtmltox_0.12.6.1-2.jammy_amd64.deb
 rm wkhtmltox_0.12.6.1-2.jammy_amd64.deb
+sudo apt install -f -y
 sudo apt install -y python3 python3-pip python3-pyqt5 chromium-browser
 pip3 install pdfkit pandas selenium markdown
 sudo mkdir -p /opt/bac-LXP
